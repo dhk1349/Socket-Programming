@@ -1,38 +1,12 @@
 #include "packet_structure.h"
 #include <iostream>
 
-struct Ethernet_Header{
-    unsigned char D_addr[6]; //destination mac address
-    unsigned char S_addr[6]; //source mac address
-    unsigned short type;     //next layer's type
-};
-
-struct IP_Header{
-   unsigned char H_length;    //need to be revised to 4bit when value being initialized
-   unsigned short T_Length; //
-   unsigned short H_checksum; //
-   unsigned char S_IP[4];
-   unsigned char D_IP[4];
-};
-
-struct ARP_Header{
-    unsigned short H_type;
-    unsigned short P_type;
-    unsigned char H_A_length;
-    unsigned char P_A_length;
-    unsigned short OPcode;
-    unsigned char S_H_addr[6];  //source mac
-    unsigned int S_P_addr;      //source IP
-    unsigned char D_H_addr[6];  //dest mac
-    unsigned int D_P_addr;      //dest IP
-};
-
-int alloc_eth(unsigned char* h, Ethernet_Header* Eh){
+int alloc_eth(unsigned char*desmac, unsigned char*mymac, unsigned short nexttype, Ethernet_Header* Eh){
     for(int i=0;i<6;i++){
-        Eh->D_addr[i]=h[i];
-        Eh->S_addr[i]=h[i+6];
+        Eh->D_addr[i]=desmac[i];
+        Eh->S_addr[i]=mymac[i];
     }
-    Eh->type=(h[12]&0x0f);
+    Eh->type=nexttype;
     return 1;
 }
 
@@ -46,7 +20,20 @@ int alloc_IP(unsigned char* h, IP_Header* Ih){
     return 1;
 }
 
-int alloc_ARP(unsigned char* h, ARP_Header* Ah){
-
+int alloc_ARP(unsigned short H_t, unsigned short P_t, unsigned char H_A_l, unsigned char P_A_l,
+              unsigned short OP, unsigned char S_H_a[6], unsigned char S_P_a[4],unsigned char D_H_a[6], unsigned char D_P_a[4], ARP_Header* Ah){
+    Ah->H_type=H_t;
+    Ah->P_type=P_t;
+    Ah->H_A_length=H_A_l;
+    Ah->P_A_length=P_A_l;
+    Ah->OPcode=OP;
+    for(int i=0;i<4;i++){
+        Ah->S_P_addr[i]=S_P_a[i];
+        Ah->D_P_addr[i]=D_P_a[i];
+    }
+    for(int i=0;i<6;i++){
+        Ah->S_H_addr[i]=S_H_a[i];
+        Ah->D_H_addr[i]=D_H_a[i];
+    }
     return 1;
 }
