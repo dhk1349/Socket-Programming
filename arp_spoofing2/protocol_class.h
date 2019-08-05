@@ -5,16 +5,9 @@
 #include <string>
 #include <string.h>
 #include <arpa/inet.h>
-struct Object{
-    uint8_t MAC[6];
-    uint8_t IP[4];
-};
 
-struct Data{
-    Object Attacker;
-    Object Sender;
-    Object Target;
-};
+#define REQUEST 0x0001
+#define REPLY 0x0002
 
 struct  Ethernet{
     unsigned char D_addr[6];//destination mac addr
@@ -39,11 +32,48 @@ private:
     Ethernet* eth;
     ARP* arp;
 public:
-    Header();
-    Header(std::string OP);
-    void set_eth_mac(int8_t Source_mac[6], int8_t Dest_mac[6]);
-    void set_arp_mac(int8_t Sender_mac[6], int8_t Dest_mac[6]);
-    void set_arp_IP(int8_t Sender_IP[4], int8_t Dest_IP[4]);
-    void get_packet(char* input);
+    Header(){
+        packet=(char*)malloc(sizeof(char)*42);
+        Ethernet *eth=(Ethernet *)packet;
+        ARP * arp=(ARP *)packet;
+
+        eth->type=htons(0x0806); //Next layer will be ARP
+        arp->H_type=htons(0x0001);
+        arp->P_type=htons(0x0800);
+        arp->H_A_length=0x06;
+        arp->P_A_legnth=0x04;
+    }
+    void set_eth_mac(uint8_t* Source_mac, uint8_t* Dest_mac){
+        memcpy(eth->S_addr, Source_mac,  6);
+        memcpy(eth->D_addr, Dest_mac, 6);
+    }
+    void set_arp_mac(uint8_t* Sender_mac, uint8_t* Dest_mac){
+        memcpy(arp->S_H_addr, Sender_mac, 6);
+        memcpy(arp->D_H_addr, Dest_mac, 6);
+    }
+    void set_arp_IP(uint8_t* Sender_IP, uint8_t* Dest_IP){
+        memcpy(arp->D_P_addr, Dest_IP, 4);
+        memcpy(arp->S_P_addr, Sender_IP, 4);
+    }
+    void set_arp_OP(int input){
+        if(input==REQUEST) arp->OPcode=htons(REQUEST);
+        else if(input==REPLY) arp->OPcode=htons(REPLY);
+    }
+    void get_packet(char* input){
+        input=packet;
+    }
+    void Broadcast_Setting(uint8_t* S_MAC, uint8_t* S_IP, uint8_t* D_IP){
+        set_arp_OP(REQUEST);
+        uint8_t temp_broadcast_mac1[6];
+        uint8_t temp_broadcast_mac2[6];
+        memset(temp_broadcast_mac1, 0xff, 6);
+        memset(temp_broadcast_mac2, 0x00, 6);
+
+        set_eth_mac(S_MAC, temp_broadcast_mac1);
+        set_arp_IP(S_MAC, temp_broadcast_mac2);
+        set_arp_mac(S_IP, D_IP);
+    }
 };
+
+void GET_MY_IP_MAC(char* dev, uint8_t* attacker_IP, uint8_t* attacker_MAC);
 #endif // PROTOCOL_CLASS_H

@@ -5,9 +5,7 @@ CONFIG -= qt
 
 SOURCES += \
         main.cpp \
-        packet_function.cpp \
         protocol_class.cpp
 
 HEADERS += \
-    packet_function.h \
     protocol_class.h

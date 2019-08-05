@@ -1,15 +1,5 @@
 #include <iostream>
-#include <pcap.h>
-#include<sys/ioctl.h>
-#include<sys/socket.h>
-#include <net/if.h>
-#include<netinet/ether.h>
-#include <netinet/in.h>
-#include <stdlib.h>
-#include<unistd.h>
-#include<string.h>
 #include "protocol_class.h"
-#include "packet_function.h"
 using namespace std;
 
 /*
@@ -23,30 +13,31 @@ int usage(){
     cerr<<"Syntax: ARP_spoof <interface> <Sender IP> <Target IP>";
     return 1;
 }
-
  int main(int argc, char* argv[])
 {
     if(argc!=3){
         usage();
         exit(1);
     }
-    char* dev;
-    uint8_t Attacker_MAC[6]; //MY MAC
-    uint8_t Attacker_IP[4];  //MY IP
-    uint8_t Sender_MAC[6];   //VICTIM's MAC
-    uint8_t Sender_IP[4];    //VICTIMS's IP
-    uint8_t Target_MAC[6];   //GATEWAY's MAC
-    uint8_t Target_IP[4];    //GATEWAY's IP
 
-    dev=argv[0];
-    memcpy(Sender_IP,argv[1],4);
-    memcpy(Target_IP,argv[2],4);
+    Header attack_info;
+    char* dev=argv[0];
+    uint8_t* attacker_IP;
+    uint8_t* attacker_MAC;
+
+    uint8_t* sender_IP;
+    uint8_t* sender_MAC;
+
+    uint8_t* targte_IP;
+    uint8_t* target_MAC;
 
     //detect my mac
-    GET_MY_IP_MAC(dev, Attacker_IP, Attacker_MAC);
-
+    GET_MY_IP_MAC(dev, attacker_IP, attacker_MAC);
 
     //detect sender mac
+    attack_info.Broadcast_Setting(attacker_MAC, attacker_IP, sender_IP);
+
+
     //infect sender mac table.
     //infect target mac tagble.
 
