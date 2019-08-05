@@ -4,4 +4,8 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += \
-        main.cpp
+        main.cpp \
+        protocol_class.cpp
+
+HEADERS += \
+    protocol_class.h
