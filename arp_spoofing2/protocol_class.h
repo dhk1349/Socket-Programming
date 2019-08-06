@@ -5,6 +5,7 @@
 #include <string>
 #include <string.h>
 #include <arpa/inet.h>
+#include "pcap.h"
 
 #define REQUEST 0x0001
 #define REPLY 0x0002
