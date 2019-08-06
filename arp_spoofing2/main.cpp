@@ -16,11 +16,11 @@ int usage(){
 }
  int main(int argc, char* argv[])
 {
-    if(argc!=3){
+    if(argc!=4){
         usage();
         exit(1);
     }
-
+    printf("1");
     Header attack_info;
     char* dev=argv[1];
     uint8_t* attacker_IP;
@@ -31,11 +31,13 @@ int usage(){
 
     uint8_t* target_IP;
     uint8_t* target_MAC;
+    printf("2");
 
     memcpy(sender_IP, argv[2], 4);
     memcpy(target_IP, argv[3], 4);
     //detect my mac
     GET_MY_IP_MAC(dev, attacker_IP, attacker_MAC);
+    printf("3");
 
     //Initialize handler
     char errbuf[PCAP_ERRBUF_SIZE];
@@ -45,6 +47,7 @@ int usage(){
         printf("FAILED TO OPEN PCAP HANDLE\n");
         return -1;
     }
+    printf("4");
 
     //detect sender mac
     attack_info.Broadcast_Setting(attacker_MAC, attacker_IP, sender_IP);
