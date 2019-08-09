@@ -31,6 +31,7 @@ int usage(){
         exit(1);
     }
     char* dev;
+    Data* attack_seesion;
     uint8_t Attacker_MAC[6]; //MY MAC
     uint8_t Attacker_IP[4];  //MY IP
     uint8_t Sender_MAC[6];   //VICTIM's MAC
@@ -38,6 +39,7 @@ int usage(){
     uint8_t Target_MAC[6];   //GATEWAY's MAC
     uint8_t Target_IP[4];    //GATEWAY's IP
 
+    
     dev=argv[0];
     memcpy(Sender_IP,argv[1],4);
     memcpy(Target_IP,argv[2],4);

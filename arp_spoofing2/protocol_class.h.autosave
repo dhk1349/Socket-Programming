@@ -5,16 +5,7 @@
 #include <string>
 #include <string.h>
 #include <arpa/inet.h>
-struct Object{
-    uint8_t MAC[6];
-    uint8_t IP[4];
-};
 
-struct Data{
-    Object Attacker;
-    Object Sender;
-    Object Target;
-};
 
 struct  Ethernet{
     unsigned char D_addr[6];//destination mac addr
