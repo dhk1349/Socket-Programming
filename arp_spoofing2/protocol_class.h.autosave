@@ -46,7 +46,6 @@ public:
         printf("exiting constructor\n");
     }
     void set_eth_mac(uint8_t* Source_mac, uint8_t* Dest_mac){
-        printf("set eth mac\n");
         memcpy(eth->S_addr, Source_mac, 6);
         printf("finicshed memcp\n");
         memcpy(eth->D_addr, Dest_mac, 6);

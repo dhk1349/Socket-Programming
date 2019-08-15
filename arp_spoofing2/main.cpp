@@ -16,28 +16,34 @@ int usage(){
 }
  int main(int argc, char* argv[])
 {
+     printf("start\n");
     if(argc!=4){
         usage();
         exit(1);
     }
-    printf("1");
+    printf("Before calling constructor\n");
     Header attack_info;
+    printf("after calling constructor\n");
     char* dev=argv[1];
-    uint8_t* attacker_IP;
-    uint8_t* attacker_MAC;
+    uint8_t attacker_IP[4];
+    uint8_t attacker_MAC[6];
 
-    uint8_t* sender_IP;
-    uint8_t* sender_MAC;
+    uint8_t sender_IP[4];
+    uint8_t sender_MAC[6];
 
-    uint8_t* target_IP;
-    uint8_t* target_MAC;
-    printf("2");
+    uint8_t target_IP[4];
+    uint8_t target_MAC[6];
+    printf("2\n");
 
-    memcpy(sender_IP, argv[2], 4);
-    memcpy(target_IP, argv[3], 4);
+    printf("before calling memecopy\n");
+    const char* sender_ip_str=argv[2];
+    const char* target_ip_str=argv[3];
+    inet_pton(AF_INET, sender_ip_str, sender_IP);
+    inet_pton(AF_INET, target_ip_str, target_IP);
     //detect my mac
+    printf("Before calling getmy ip mac\n");
     GET_MY_IP_MAC(dev, attacker_IP, attacker_MAC);
-    printf("3");
+    printf("3\n");
 
     //Initialize handler
     char errbuf[PCAP_ERRBUF_SIZE];
@@ -47,11 +53,13 @@ int usage(){
         printf("FAILED TO OPEN PCAP HANDLE\n");
         return -1;
     }
-    printf("4");
+    printf("4\n");
 
     //detect sender mac
     attack_info.Broadcast_Setting(attacker_MAC, attacker_IP, sender_IP);
+    printf("setting for BC done\n");
     while(1){
+        printf("while \n\n");
         char* sendpacket;
         attack_info.get_packet(sendpacket);
         const u_char* packet;
@@ -62,6 +70,7 @@ int usage(){
         printf("running\n");
     }
     //detecting target mac
+    printf("broadcasting of info\n\n");
     attack_info.Broadcast_Setting(attacker_MAC, attacker_IP, target_IP);
 
     //infect sender mac table.

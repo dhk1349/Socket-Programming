@@ -4,9 +4,9 @@ CONFIG -= app_bundle
 CONFIG -= qt
 LIBS += -lpcap
 SOURCES += \
-        header_class.cpp \
+        header.cpp \
         main.cpp
 
 HEADERS += \
-    header_class.h \
-    packet_structure.h
+    header.h \
+    libraries.h
