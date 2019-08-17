@@ -2,6 +2,7 @@
 #define LIBRARIES_H
 #include <iostream>
 #include <stdio.h>
+#include <ctime>
 #include <stdlib.h>
 #include <string>
 #include <string.h>

